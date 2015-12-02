@@ -1,0 +1,121 @@
+function [val] = ctmc_rel_entropy(Q, state_sets)
+    
+    
+    
+    Qs = ctmc_join(Q, state_sets);
+
+%     n = size(Q,1);
+    ns = size(Qs,1);
+    p = ctmc_stationary(Q);
+    
+    sum1 = 0;
+    sum2 = 0;
+    
+%     % works
+%     for seti_n = 1:ns
+%         seti = state_sets.get(seti_n-1);
+%         
+%         for is = 1:seti.size()
+%             i = seti.get(is-1);
+%             for setj_n = 1:ns
+%                 setj = state_sets.get(setj_n-1);
+% 
+%                 for js = 1:setj.size()
+%                     j = setj.get(js-1);
+%                     if Q(i,j) ~= 0 && j ~= i
+%                         sum1 = sum1 + p(i)*Q(i,j)*log(Q(i,i)/Qs(seti_n,seti_n));
+%                     end
+%                 end
+%             end
+%             
+%             sum2 = sum2 + p(i)*(Q(i,i) - Qs(seti_n,seti_n));
+%         end
+%     end
+
+    val = sum1 + sum2;
+    
+    for seti_n = 1:ns
+        for setj_n = 1:ns
+            for is = 1:seti.size()
+                i = seti.get(is-1);
+                
+                q_iB = 0;
+                for js = 1:setj.size()
+                    j = setj.get(js-1);
+                    q_iB = q_iB + Q(i,j);
+                end
+                
+                sum1 = sum1 + p(i)*q_iB*log(q_iB / Qs(seti_n, setj_n));
+            end
+        end
+        
+        q_AA = 0;
+        for is = 1:seti.size()
+            i = seti.get(is-1);
+            for js = 1:setj.size()
+                
+            end
+        end
+    end
+    
+%     for seti_n = 1:ns
+%         seti = state_sets.get(seti_n-1);
+%         
+%         q_AA = Qs(seti_n,seti_n);
+%         
+%         for setj_n = 1:ns
+%             setj = state_sets.get(setj_n-1);
+%         
+%             if setj_n ~= seti_n
+%                 for is = 1:seti.size()
+%                     i = seti.get(is-1);
+%                     
+%                     q_iA = 0; 
+%                     for js = 1:seti.size()
+%                         j = seti.get(js-1);
+% 
+%                         q_ij = Q(i,j);
+%                         q_iA = q_iA + q_ij;
+%                     end
+%                     
+%                     pi = p(i);
+% %                     q_ii = Q(i,i);
+% 
+%                     for js = 1:setj.size()
+%                         j = setj.get(js-1);
+%                         
+%                         q_ij = Q(i,j);
+%                         
+%                         if Q(i,j) ~= 0
+%                             sum1 = sum1 + pi*q_ij*log(q_iA/q_AA);
+%                         end
+%                     end
+%                 end
+%             
+%             end
+%         end
+%     end
+%     
+%     for seti_n = 1:ns
+%         seti = state_sets.get(seti_n-1);
+%         
+%         p_A = 0;
+%         q_AA = 0;
+%         
+%         for i1 = 1:seti.size()
+%             i = seti.get(i1-1);
+%             for j1 = 1:seti.size()
+%                 j = seti.get(j1-1);
+%                 q_AA = q_AA + p(i)*Q(i,j);
+%             end
+%             
+%             p_A = p_A + p(i);
+%         end
+%         
+%         sum2 = sum2 + q_AA - p_A*Qs(seti_n,seti_n);
+%     end
+%     
+%     val = sum1 + sum2;
+    
+
+end

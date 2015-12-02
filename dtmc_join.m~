@@ -1,0 +1,43 @@
+function [P1] = dtmc_join(P, join_v)
+    n = size(P,2);
+    n1 = n - length(join) + 1;
+    
+%     join = sort(join);
+    
+    P1 = zeros(n1);
+    
+%     % setup index table
+%     idxs = 1:n;
+%     del_count = 0;
+%     for i = join(2):n
+%         if ismember(i,join)
+%             idxs(i) = -1;
+%             del_count = del_count + 1;
+%         else
+% %             idxs(i) = idxs(i) - del_count;
+%         end
+%     end
+%     
+%     idxs(idxs == -1) = [];
+    
+    % join
+    p = dtmc_stationary(P);
+    
+    for i = 1:n1
+        states_i = join_v{i};
+        for j = 1:n1
+            states_j = join_v{j};
+            
+            sum = 0;
+            for k = 1:length(states_i)
+                sumk = 0;
+                for l = 1:length(states_j)
+                    sumk = sumk + P(states_i{k},states_j{l});
+                end
+                
+                sum = sum + p(states_i(k))*sumk;
+            end
+            P1(i,j) = sum / sum(p(states_i));
+        end
+    end
+end
