@@ -1,9 +1,9 @@
-function [hierarchy, scores, Q_matrices] = ctmc_partition(Q)
+function [hierarchy, losses, Q_matrices] = ctmc_partition(Q)
     n = size(Q,1);
     
     state_sets = java.util.ArrayList;
     Q_matrices = java.util.ArrayList;
-    scores = [];
+    losses = zeros(n-1,1);
     hierarchy = java.util.ArrayList;
     
     initial_partition = java.util.ArrayList;
@@ -14,16 +14,14 @@ function [hierarchy, scores, Q_matrices] = ctmc_partition(Q)
     state_sets.add(initial_partition);
 
     split_n = 1;
-    best_score = 0;
-    while best_score ~= -inf
+    best_loss = 0;
+    while best_loss ~= inf
         best_i = -1;
-        best_score = -inf;
+        best_loss = inf;
         
         for i = 0:state_sets.size()-1
             state_set = state_sets.remove(i);
-            if state_set.size() > 1
-%                 state_sets.remove(i);
-                
+            if state_set.size() > 1                
                 Qi = ctmc_subprocess(Q, state_set);
                 part = ctmc_bipartition(Qi);
                 
@@ -40,9 +38,9 @@ function [hierarchy, scores, Q_matrices] = ctmc_partition(Q)
                     end
                 end
                 
-                score = ctmc_rel_entropy(Q, state_sets);
-                if score > best_score
-                    best_score = score;
+                loss = ctmc_loss(Q, state_sets);
+                if loss < best_loss
+                    best_loss = loss;
                     best_i = i;
                 end
                 
@@ -52,7 +50,7 @@ function [hierarchy, scores, Q_matrices] = ctmc_partition(Q)
             state_sets.add(i, state_set);
         end
         
-        if best_score ~= -inf
+        if best_loss ~= inf
             state_set = state_sets.remove(best_i);
             Qi = ctmc_subprocess(Q, state_set);
             part = ctmc_bipartition(Qi);
@@ -69,8 +67,9 @@ function [hierarchy, scores, Q_matrices] = ctmc_partition(Q)
                 end
             end
 
-            scores = [scores, best_score];
+            losses(split_n) = best_loss;
             Q_matrices.add(ctmc_join(Q,state_sets));
+            
 %             scores.add(best_score);
             hierarchy.add(java.util.ArrayList(state_sets));
             split_n = split_n + 1;
