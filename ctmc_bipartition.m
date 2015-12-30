@@ -22,6 +22,8 @@ function [part, lambda2, v2] = ctmc_bipartition(Q)
     V = V(:, idxs);
     
     v2 = V(:,n-1);
+    v2 = v2 / v2(end);  % so that it matches the C++ result
+    
     lambda2 = lambda(n-1);
     part = v2 >= 0;
 end

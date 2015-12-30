@@ -1,5 +1,5 @@
 function [loss] = ctmc_loss(Q, state_sets)
-    
+    % Wasserstein distance
 %     n = size(Q,1);
     m = state_sets.size();
     
@@ -21,7 +21,8 @@ function [loss] = ctmc_loss(Q, state_sets)
             for i_idx = 1:fii.size()
                 i = fii.get(i_idx-1);
                 
-                p_fii(i) = p_fii(i) - 1;
+                p_fii_i = p_fii(i);
+                p_fii(i) = p_fii_i - 1;
                 
                 s = 0;
                 for j_idx = 1:fij.size()
@@ -30,7 +31,7 @@ function [loss] = ctmc_loss(Q, state_sets)
                     s = s + p_fii*Q_inv(:,j);
                 end
                 
-                p_fii(i) = p_fii(i) + 1;
+                p_fii(i) = p_fii_i;
                 
                 loss = loss + abs(s);
             end
