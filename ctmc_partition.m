@@ -1,10 +1,12 @@
-function [hierarchy, heightV, hierarchV, losses, Q_matrices] = ctmc_partition(Q)
+function [hierarchy, heightV, hierarchV, losses, losses_alt, losses_state_based, Q_matrices] = ctmc_partition(Q)
     % partitioning
     n = size(Q,1);
     
     state_sets = java.util.ArrayList;
     Q_matrices = java.util.ArrayList;
     losses = zeros(n-1,1);
+    losses_alt = zeros(n-1,1);
+    losses_state_based = zeros(n-1,1);
     heightV = zeros(2*n-2,1);
     hierarchV = zeros(2*n-2,1);
     hierarchy = java.util.ArrayList;
@@ -18,8 +20,8 @@ function [hierarchy, heightV, hierarchV, losses, Q_matrices] = ctmc_partition(Q)
     curr_state_id = 2*n-1;
     
     state_sets.add(initial_partition);
-    losses(1) = ctmc_loss(Q, state_sets);
-    heightV(curr_state_id) = inf;
+    losses(1) = ctmc_rel_entropy(Q, state_sets);
+    heightV(curr_state_id) = losses(1);%inf;
     hierarchV(curr_state_id) = curr_state_id;
     stateIdV.add(2*n-1);
 
@@ -49,7 +51,7 @@ function [hierarchy, heightV, hierarchV, losses, Q_matrices] = ctmc_partition(Q)
                     end
                 end
                 
-                loss = ctmc_loss(Q, state_sets);
+                loss = ctmc_rel_entropy(Q, state_sets);
                 if loss < best_loss
                     best_loss = loss;
                     best_i = i;
@@ -110,7 +112,7 @@ function [hierarchy, heightV, hierarchV, losses, Q_matrices] = ctmc_partition(Q)
             end
             stateIdV.add(stateId);
             hierarchV(stateId) = parentId;
-            heightV(stateId) = ctmc_loss(Q, state_sets0);
+            heightV(stateId) = ctmc_rel_entropy(Q, state_sets0);
             
             if state_set1.size() == 1
                 stateId = state_set1.get(0);
@@ -120,9 +122,11 @@ function [hierarchy, heightV, hierarchV, losses, Q_matrices] = ctmc_partition(Q)
             end
             stateIdV.add(stateId);
             hierarchV(stateId) = parentId;
-            heightV(stateId) = ctmc_loss(Q, state_sets1);
+            heightV(stateId) = ctmc_rel_entropy(Q, state_sets1);
 
             losses(split_n) = best_loss;
+            losses_alt(split_n) = heightV(stateId);
+            losses_state_based(state_sets.size()) = best_loss;
             Q_matrices.add(ctmc_join(Q,state_sets));
             
 %             scores.add(best_score);

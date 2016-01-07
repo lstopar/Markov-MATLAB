@@ -1,4 +1,5 @@
 %%
+heightV(end) = inf;
 for i = 1:size(Q_test,1)
     id = i;
 %     disp(['state: ',num2str(id)]);
